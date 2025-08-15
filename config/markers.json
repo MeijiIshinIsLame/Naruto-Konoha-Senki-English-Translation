@@ -1,0 +1,35 @@
+[
+	{
+	  "name": "Iruka", 
+	  "value": "0x00082c01"
+	},
+	{
+	  "name": "Naruto", 
+	  "value": "0x00080100"
+	},
+	{
+	  "name": "Naruto", 
+	  "value": "0x00080101"
+	},
+	{
+	  "name": "Naruto", 
+	  "value": "0x01080101"
+	},
+	{
+	  "name": "Naruto", 
+	  "value": "0x04080101"
+	},
+
+	{
+	  "name": "Teuchi", 
+	  "value": "0x00083501"
+	},
+	{
+	  "name": "Hokage", 
+	  "value": "0x00082b01"
+	},
+	{
+	  "name": "Naruto Uzumaki", 
+	  "value": "0x82A482B882DC82AB8369838B8367"
+	}
+]
