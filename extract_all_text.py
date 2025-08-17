@@ -82,9 +82,10 @@ ignore_list = load_ignore_list()
 
 
 class Marker:
-    def __init__(self, position, length):
+    def __init__(self, position, length, content):
         self.position = position
         self.length = length
+        self.content = content
 
     def __eq__(self, other):
         if not isinstance(other, Marker):
@@ -122,7 +123,8 @@ class DialogScene:
     
     
     def get_byte_stream(self):
-        dialog_bytes_length = self.end_address - self.start_address
+        #I have no clue why this needs to be +2
+        dialog_bytes_length = (self.end_address - self.start_address) + 2
         with self.input_filename.open("rb") as f:
             f.seek(self.start_address)
             bytes = f.read(dialog_bytes_length)
@@ -153,7 +155,7 @@ class DialogScene:
             bytes_to_check = byte_stream_to_search.read(read_length)
             #print("position", byte_stream_to_search.tell(), "expected position", i, "bytes to check", bytes_to_check.hex(), "byte value", byte_value.hex())
             if bytes_to_check == byte_value:
-                positions.add(Marker(position=i-1, length=read_length))
+                positions.add(Marker(position=i-1, length=read_length, content=byte_value))
                 #print("byte", byte_value.hex(), "found at", i-1)
         return positions
 
@@ -190,8 +192,6 @@ class DialogScene:
                     self.ignore_positions.update(positions)
         sorted_ignore_positions = sorted(self.ignore_positions, key=lambda m: m.position)
         self.ignore_positions = sorted_ignore_positions
-        for ignore_item in self.ignore_positions:
-            print("irnore itemn position:", ignore_item.position)
     
     
     
@@ -235,25 +235,33 @@ class DialogScene:
             dialog_bytes = bytes()
 
             dialog = True
+            reason_for_failure = ""
 
             while dialog:
 
                 for ignore_item in self.ignore_positions:
                     if ignore_item.position == self.byte_stream.tell():
                         self.byte_stream.read(ignore_item.length)
+                        current_pos = self.byte_stream.tell()
+                        reason_for_failure = f"hit ignore item {ignore_item.content.hex()} at position {ignore_item.position}"
                         dialog = False
                 
                 for marker in self.marker_positions:
                     if marker != current_marker and marker.position == self.byte_stream.tell():
-                        self.byte_stream.read(ignore_item.length)
+                        self.byte_stream.read(marker.length)
+                        current_pos = self.byte_stream.tell()
+                        #reason_for_failure = f"hit marker item {marker.content.hex()} at position {marker.position}"
                         dialog = False
                 
 
-                dialog_bytes += self.byte_stream.read(1)
                 
                 if self.byte_stream.tell() >= len(self.byte_stream.getvalue()):
+                    #test = len(self.byte_stream.getvalue())
+                    #test2 = self.byte_stream.tell()
+                    reason_for_failure = "hit end"
                     dialog = False
                     
+                dialog_bytes += self.byte_stream.read(1)
                     
             dialog_without_last_byte = dialog_bytes[:-1]
             dialog_bytes = dialog_without_last_byte
@@ -267,6 +275,7 @@ class DialogScene:
                 f.write(f"dialog_start_position: 0x{dialog_start_position:08X}\n")
                 f.write(f"dialog_bytes: {dialog_bytes.hex()}\n")
                 f.write(f"Dialog in Shift-JIS: {dialog_bytes.decode('shift_jis', errors='replace')}\n")
+                f.write(f"reason for end: {reason_for_failure}\n")
 
 
 
@@ -284,6 +293,10 @@ for item in config:
     dialog.get_ignore_positions()
     dialog.get_marker_positions()
     dialog.extract_text(filename=item["name"])
+
+with open("test.txt", "w", encoding="shift_jis", errors='replace') as f:
+    data = open("game/neruto.gba", "rb").read()
+    f.write(data.hex())
 #print(dialog.ignore_positions)
 #print(dialog.marker_positions)
 #todo: make list of positions by looking for that exact hex. determine by size what blocks to look.
