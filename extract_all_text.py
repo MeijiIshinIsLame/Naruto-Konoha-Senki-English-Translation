@@ -187,9 +187,11 @@ class DialogScene:
             if possible_match_positions:
                 for byte_value in ignore_list:
                     positions = self.get_positions(byte_value, possible_match_positions, self.byte_stream)
-                self.ignore_positions.update(positions)
+                    self.ignore_positions.update(positions)
         sorted_ignore_positions = sorted(self.ignore_positions, key=lambda m: m.position)
         self.ignore_positions = sorted_ignore_positions
+        for ignore_item in self.ignore_positions:
+            print("irnore itemn position:", ignore_item.position)
     
     
     
@@ -224,9 +226,12 @@ class DialogScene:
 
             character_bytes = self.byte_stream.read(current_marker.length)
             character_name = get_character_name_from_bytes(character_bytes)
+            print("marker:", self.byte_stream.tell())
             for ignore_item in self.ignore_positions:
+                #print("irnore itemn position:", ignore_item.position)
                 if ignore_item.position == self.byte_stream.tell():
                     self.byte_stream.read(ignore_item.length)
+                    #print("ignore item:", self.byte_stream.tell())
             dialog_bytes = bytes()
 
             dialog = True
