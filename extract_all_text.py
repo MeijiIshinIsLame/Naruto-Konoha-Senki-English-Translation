@@ -153,7 +153,8 @@ class DialogScene:
             bytes_to_check = byte_stream_to_search.read(read_length)
             #print("position", byte_stream_to_search.tell(), "expected position", i, "bytes to check", bytes_to_check.hex(), "byte value", byte_value.hex())
             if bytes_to_check == byte_value:
-                positions.add(Marker(position=i-1, length=read_length)) 
+                positions.add(Marker(position=i-1, length=read_length))
+                #print("byte", byte_value.hex(), "found at", i-1)
         return positions
 
 
@@ -214,14 +215,18 @@ class DialogScene:
 
 
 
-    def extract_text(self):
+    def extract_text(self, filename):
         #header = "start_position,end_position,character_name,sjis_hex,utf-8_text"
+        open(filename, "w").close()
         for current_marker in self.marker_positions:
 
             self.byte_stream.seek(current_marker.position)
 
             character_bytes = self.byte_stream.read(current_marker.length)
             character_name = get_character_name_from_bytes(character_bytes)
+            for ignore_item in self.ignore_positions:
+                if ignore_item.position == self.byte_stream.tell():
+                    self.byte_stream.read(ignore_item.length)
             dialog_bytes = bytes()
 
             dialog = True
@@ -230,14 +235,13 @@ class DialogScene:
 
                 for ignore_item in self.ignore_positions:
                     if ignore_item.position == self.byte_stream.tell():
-                        if not dialog_bytes:
-                            self.byte_stream.read(ignore_item.length)
-                        else:   
-                            dialog = False
+                        self.byte_stream.read(ignore_item.length)
+                        dialog = False
                 
                 for marker in self.marker_positions:
                     if marker != current_marker and marker.position == self.byte_stream.tell():
-                        break
+                        self.byte_stream.read(ignore_item.length)
+                        dialog = False
                 
 
                 dialog_bytes += self.byte_stream.read(1)
@@ -249,14 +253,15 @@ class DialogScene:
             dialog_without_last_byte = dialog_bytes[:-1]
             dialog_bytes = dialog_without_last_byte
             character_name_start_position = self.start_address + current_marker.position
-            dialog_start_position = character_name_start_position + 4
-            print("---------------------------------------------")
-            print("character_name_start_position:", f"0x{character_name_start_position:08X}")
-            print("character_bytes:", character_bytes.hex())
-            print("character_name:", character_name)
-            print("dialog_start_position:", f"0x{dialog_start_position:08X}")
-            print("dialog_bytes:", dialog_bytes.hex())
-            print("Dialog in Shift-JIS:", dialog_bytes.decode('shift_jis', errors='replace'))
+            dialog_start_position = character_name_start_position + len(character_bytes)
+            with open(filename, "a", encoding="shift_jis", errors='replace') as f:
+                f.write("---------------------------------------------\n")
+                f.write(f"character_name_start_position: 0x{character_name_start_position:08X}\n")
+                f.write(f"character_bytes: {character_bytes.hex()}\n")
+                f.write(f"character_name: {character_name}\n")
+                f.write(f"dialog_start_position: 0x{dialog_start_position:08X}\n")
+                f.write(f"dialog_bytes: {dialog_bytes.hex()}\n")
+                f.write(f"Dialog in Shift-JIS: {dialog_bytes.decode('shift_jis', errors='replace')}\n")
 
 
 
@@ -273,7 +278,7 @@ for item in config:
 
     dialog.get_ignore_positions()
     dialog.get_marker_positions()
-    dialog.extract_text()
+    dialog.extract_text(filename=item["name"])
 #print(dialog.ignore_positions)
 #print(dialog.marker_positions)
 #todo: make list of positions by looking for that exact hex. determine by size what blocks to look.
