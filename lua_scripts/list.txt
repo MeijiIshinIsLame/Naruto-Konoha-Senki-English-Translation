@@ -1,0 +1,2 @@
+D:\ROMhacking\Naruto Romhack\testfiles\Replace_bytes_00082b01_at_loc_0x00049F12.gba
+D:\ROMhacking\Naruto Romhack\testfiles\Replace_bytes_00083501_at_loc_0x00049F12.gba

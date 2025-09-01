@@ -236,6 +236,7 @@ class DialogScene:
 
             dialog = True
             reason_for_failure = ""
+            dialog_start_position = None
 
             while dialog:
 
@@ -262,11 +263,14 @@ class DialogScene:
                     dialog = False
                     
                 dialog_bytes += self.byte_stream.read(1)
+                
+                if len(dialog_bytes) == 1:
+                    dialog_start_position = self.byte_stream.tell() - 1
                     
             dialog_without_last_byte = dialog_bytes[:-1]
             dialog_bytes = dialog_without_last_byte
             character_name_start_position = self.start_address + current_marker.position
-            dialog_start_position = character_name_start_position + len(character_bytes)
+            dialog_start_position = self.start_address + dialog_start_position
             with open(filename, "a", encoding="shift_jis", errors='replace') as f:
                 f.write("---------------------------------------------\n")
                 f.write(f"character_name_start_position: 0x{character_name_start_position:08X}\n")
@@ -274,8 +278,8 @@ class DialogScene:
                 f.write(f"character_name: {character_name}\n")
                 f.write(f"dialog_start_position: 0x{dialog_start_position:08X}\n")
                 f.write(f"dialog_bytes: {dialog_bytes.hex()}\n")
-                f.write(f"Dialog in Shift-JIS: {dialog_bytes.decode('shift_jis', errors='replace')}\n")
-                f.write(f"reason for end: {reason_for_failure}\n")
+                f.write(f"Dialog in Shift-JIS: {dialog_bytes.decode('shift_jis', errors='replace').replace("\n", "\\n")}\n")
+                f.write(f"English: DO U LEIK MUDKIPZ?!\n")
 
 
 
@@ -299,4 +303,5 @@ with open("test.txt", "w", encoding="shift_jis", errors='replace') as f:
     f.write(data.hex())
 #print(dialog.ignore_positions)
 #print(dialog.marker_positions)
+#todo: make list of positions by looking for that exact hex. determine by size what blocks to look.
 #todo: make list of positions by looking for that exact hex. determine by size what blocks to look.

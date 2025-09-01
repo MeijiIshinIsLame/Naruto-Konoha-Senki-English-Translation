@@ -1,11 +1,11 @@
 [
   {
-    "name": "ichiraku_01.txt",
+    "name": "ichiraku_01.json",
     "start_address": "0x00049EAD",
     "end_address": "0x0004A95F"
   },
   {
-    "name": "ichiraku_02.txt",
+    "name": "ichiraku_02.json",
     "start_address": "0x0004A970",
     "end_address": "0x0004AF95"
   }
