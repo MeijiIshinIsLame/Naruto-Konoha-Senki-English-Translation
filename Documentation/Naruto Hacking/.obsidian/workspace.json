@@ -1,0 +1,258 @@
+{
+  "main": {
+    "id": "7a2914717d46a08d",
+    "type": "split",
+    "children": [
+      {
+        "id": "369f0914274baff3",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "ad0c7131d9a06522",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Extracting tiled graphics.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Extracting tiled graphics"
+            }
+          },
+          {
+            "id": "974eae491c5b09cc",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Text Routine.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Text Routine"
+            }
+          },
+          {
+            "id": "88b8aa1fabaea2f9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "addresses to note.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "addresses to note"
+            }
+          },
+          {
+            "id": "0b6405386e9837eb",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Text Routine.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Text Routine"
+            }
+          },
+          {
+            "id": "eae950b89b922bcf",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Scene header breakdown.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Scene header breakdown"
+            }
+          },
+          {
+            "id": "5bdcc9e000ac2c20",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Scene header breakdown.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Scene header breakdown"
+            }
+          }
+        ],
+        "currentTab": 5
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "85dbfa05cfcc0d73",
+    "type": "split",
+    "children": [
+      {
+        "id": "1ba237d692823a6f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "637093521a155db6",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "41ab367cc8ba396c",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "b7563c9b01c60c94",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "00c78ee991ae4a84",
+    "type": "split",
+    "children": [
+      {
+        "id": "65faaf98891e5672",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "18419d9104ecd246",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Things to do.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for Things to do"
+            }
+          },
+          {
+            "id": "24a02839de4f8c00",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Things to do.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from Things to do"
+            }
+          },
+          {
+            "id": "5fd442e136d7db9c",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "ac607a32fce8a0c8",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Things to do.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of Things to do"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "5bdcc9e000ac2c20",
+  "lastOpenFiles": [
+    "Commands.md",
+    "Scene header breakdown.md",
+    "Text Routine.md",
+    "Pasted image 20250913234843.png",
+    "1 Byte Text Extraction.md",
+    "addresses to note.md",
+    "Things to do.md",
+    "Extracting tiled graphics.md",
+    "Pasted image 20250913163852.png",
+    "Pasted image 20250909194200.png",
+    "Pasted image 20250911212918.png",
+    "Welcome.md"
+  ]
+}

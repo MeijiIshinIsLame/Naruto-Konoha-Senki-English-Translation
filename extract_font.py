@@ -66,7 +66,7 @@ def extract_chars_from_rom(filename=Path("game/neruto.gba")):
             char_bytes = f.read(16)
             print(f"0x{start_of_char_bytes:04X}")
             print(char_bytes.hex(' '))
-            draw_image(Path(f"font/test{i}.png"), char_bytes)
+            draw_image(Path(f"font/{hex_value}.png"), char_bytes)
             
             
             
