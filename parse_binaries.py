@@ -29,7 +29,10 @@ class BinaryScriptProcessor:
 
     def read_direct_hex(self, length):
         the_bytes = self.f.read(length)
-        return "<HEX>" + the_bytes.hex() + "</HEX>"
+        return self.bytes_to_formatted_hex(the_bytes)
+        
+    def bytes_to_formatted_hex(self, b):
+        return "<HEX>" + b.hex() + "</HEX>"
 
     def read_addr(self, length=4):
         addr = self.f.read(length)
@@ -48,21 +51,17 @@ class BinaryScriptProcessor:
         while True:
             one_byte = self.f.read(1)
             self.f.seek(-1, 1)
-            print("pos", self.f.tell(), "current hex", hex(int.from_bytes(one_byte)))
+            print(hex(int.from_bytes(one_byte)))
             two_bytes = self.f.read(2)
-            print("pos", self.f.tell(), "current hex", hex(int.from_bytes(two_bytes)))
+            print(hex(int.from_bytes(two_bytes)))
             self.f.seek(-2, 1)
             
             if helpers.is_sjis(one_byte):
-                print(hex(int.from_bytes(one_byte)), "match")
                 the_bytes += self.f.read(1)
             elif helpers.is_sjis(two_bytes):
-                self.f.read(2)
-                print(hex(int.from_bytes(two_bytes)), "match")
-                the_bytes += two_bytes
+                the_bytes += self.f.read(2)
             else:
-                break       
-            print(the_bytes)
+                break      
         sjis = self.bytes_to_sjis(the_bytes)
         return sjis
         
@@ -82,21 +81,24 @@ class BinaryScriptProcessor:
         self.f.seek(original_position-self.f.tell(), 1)
         opcode_bytes = self.read_direct_hex(length)
         return opcode_bytes
+            
                 
     def read_sjis_and_opcodes(self):
         string = ""
         #we can read opcodes at end because the file always ends in opcodes
         while self.f.tell() < self.file_size-1:
-            print("filesize", self.file_size)
-            #print("f tell", self.f.tell(), "file size", self.file_size)
             string += self.read_sjis_until_opcode()
             string += self.read_opcode_until_sjis()
         return string
                 
         
     def read_1b_header(self):
-        string = self.read_opcode_until_sjis()
-        return string
+        header_bytes = bytes()
+        original_position = self.f.tell()
+        while not helpers.is_sjis(self.f.read(2)):
+            self.f.seek(self.f.tell() - 2)
+            header_bytes += self.f.read(1)
+        return self.bytes_to_formatted_hex(header_bytes)
         
         
 
