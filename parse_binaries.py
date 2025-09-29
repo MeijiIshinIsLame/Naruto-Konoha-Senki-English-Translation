@@ -45,50 +45,89 @@ class BinaryScriptProcessor:
     def bytes_to_sjis(self, b):
         the_bytes = b.decode("shift_jis", errors="hexreplace")
         return "<SJIS>" + the_bytes + "</SJIS>"
+        
+    def sjis_next_action_jikkou(self, next_action):
+        do_nothing = 0
+        move_backwards = 1
+        move_forwards = 2
+        b2 = bytes()
+        if next_action == do_nothing: 
+            return None
+        if next_action == move_backwards:
+            self.f.seek(-2, 1)
+            b2 = self.f.read(2)
+        if next_action == move_forwards:
+            self.f.seek(-1, 1)
+            b2 = self.f.read(2)
+            
+        b2_first_byte = bytes([b2[0]])    
+        if helpers.is_sjis(b2):
+            return b2
+        elif helpers.is_sjis(b2_first_byte):
+            self.f.seek(-1, 1)
+            b2 = self.f.read(1)
+            return b2
+        else:
+            return None
     
     def read_sjis_until_opcode(self):
         the_bytes = bytes()
         while True:
-            one_byte = self.f.read(1)
-            self.f.seek(-1, 1)
-            print(hex(int.from_bytes(one_byte)))
-            two_bytes = self.f.read(2)
-            print(hex(int.from_bytes(two_bytes)))
-            self.f.seek(-2, 1)
-            
-            if helpers.is_sjis(one_byte):
-                the_bytes += self.f.read(1)
-            elif helpers.is_sjis(two_bytes):
-                the_bytes += self.f.read(2)
-            else:
-                break      
+            b = self.f.read(1)
+            if helpers.is_possible_partial_sjis(b):
+                next_action = helpers.sjis_decoder_next_action(b)
+                b2 = self.sjis_next_action_jikkou(next_action)
+                if not b2:
+                    break
+                else:
+                    the_bytes += b2 
+                #print(b2)
         sjis = self.bytes_to_sjis(the_bytes)
         return sjis
         
     def read_opcode_until_sjis(self):
-        reading = True
-        length = 0
-        original_position = self.f.tell()
-        while reading:
-            the_bytes = self.f.read(2)
-            if not the_bytes:
-                break
-            if helpers.is_sjis(the_bytes):
-                self.f.seek(self.f.tell() - len(the_bytes))
-                break
-            length += 1
-            #print("f tell", self.f.tell(), "file size", self.file_size)
-        self.f.seek(original_position-self.f.tell(), 1)
-        opcode_bytes = self.read_direct_hex(length)
-        return opcode_bytes
+        the_bytes = bytes()
+        while True:
+            b = self.f.read(1)
+            if helpers.is_possible_partial_sjis(b):
+                next_action = helpers.sjis_decoder_next_action(b)
+                b2 = self.sjis_next_action_jikkou(next_action)
+                if not b2:
+                    self.f.seek(-1, 1)
+                    the_bytes += self.f.read(1)
+                else:
+                    break
+                if self.f.tell() >= self.file_size:
+                    break
+        sjis = self.bytes_to_sjis(the_bytes)
+        return sjis
+        
+    # def read_opcode_until_sjis(self):
+        # reading = True
+        # length = 0
+        # original_position = self.f.tell()
+        # while reading:
+            # the_bytes = self.f.read(2)
+            # if not the_bytes:
+                # break
+            # if helpers.is_sjis(the_bytes):
+                # self.f.seek(self.f.tell() - len(the_bytes))
+                # break
+            # length += 1
+            # print("here")
+            # #print("f tell", self.f.tell(), "file size", self.file_size)
+        # self.f.seek(original_position-self.f.tell(), 1)
+        # opcode_bytes = self.read_direct_hex(length)
+        # return opcode_bytes
             
                 
     def read_sjis_and_opcodes(self):
         string = ""
         #we can read opcodes at end because the file always ends in opcodes
-        while self.f.tell() < self.file_size-1:
+        while self.f.tell() <= self.file_size:
             string += self.read_sjis_until_opcode()
             string += self.read_opcode_until_sjis()
+            print(string)
         return string
                 
         

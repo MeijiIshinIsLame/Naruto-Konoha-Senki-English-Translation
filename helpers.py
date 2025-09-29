@@ -1,8 +1,8 @@
 from pathlib import Path
 SJIS_FIRSTBYTE_LOWEST = 0x81
-SJIS_FIRSTBYTE_HIGHEST = 0xFC
-SJIS_SECONDTBYTE_LOWEST = 0x40
-SJIS_SECONDTBYTE_HIGHEST = 0x7E
+SJIS_FIRSTBYTE_HIGHEST = 0xEA
+SJIS_SECONDBYTE_LOWEST = 0x40
+SJIS_SECONDBYTE_HIGHEST = 0xFC
 sjis_table_file = sjis_table_file = Path("config", "sjis.tbl")
 
 def list_of_sjis_in_bytes(sjis_table_file):
@@ -30,7 +30,7 @@ def is_2byte_sjis(the_bytes):
     byte1_int = the_bytes[0]
     byte2_int = the_bytes[1]
     byte_1_match = True if byte1_int >= SJIS_FIRSTBYTE_LOWEST and byte1_int <= SJIS_FIRSTBYTE_HIGHEST else False
-    byte_2_match = True if byte2_int >= SJIS_SECONDTBYTE_LOWEST and byte2_int <= SJIS_SECONDTBYTE_HIGHEST else False
+    byte_2_match = True if byte2_int >= SJIS_SECONDBYTE_LOWEST and byte2_int <= SJIS_SECONDBYTE_HIGHEST else False
     if byte_1_match and byte_2_match:
         return True
     return False
@@ -43,12 +43,25 @@ def is_sjis(the_bytes):
     return False
 
 def is_possible_partial_sjis(b):
+    if is_sjis(b):
+        return True
+    b = int.from_bytes(b)
+    if b >= SJIS_FIRSTBYTE_LOWEST and b <= SJIS_FIRSTBYTE_HIGHEST:
+        return True
+    if b >= SJIS_SECONDBYTE_LOWEST and b <= SJIS_SECONDBYTE_HIGHEST:
+        return True
+    return False
+    
+def sjis_decoder_next_action(b):
+    b = int.from_bytes(b)
     do_nothing = 0
     move_backwards = 1
     move_forward = 2
-    if b[0] >= SJIS_FIRSTBYTE_LOWEST and b[0] <= SJIS_FIRSTBYTE_HIGHEST:
+    if b >= SJIS_FIRSTBYTE_LOWEST and b <= SJIS_FIRSTBYTE_HIGHEST:
         return move_forward
-    if 
+    if b >= SJIS_SECONDBYTE_LOWEST and b <= SJIS_SECONDBYTE_HIGHEST:
+        return move_backwards
+    return do_nothing
     
 def is_opcode(the_bytes):
     result = False
