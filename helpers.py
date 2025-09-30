@@ -42,6 +42,26 @@ def is_sjis(the_bytes):
         return is_2byte_sjis(the_bytes)
     return False
 
+def confirm_1byte_sjis(b, f):
+    bint = int.from_bytes(b)
+    if is_1byte_sjis(b):
+        if SJIS_SECONDBYTE_LOWEST >= bint <= SJIS_SECONDBYTE_HIGHEST:
+            f.seek(-2, 1)
+            b2 = f.read(2)
+            if is_sjis(b2):
+                return True
+        else:
+            f.seek(-1, 1)
+            b2 = f.read(2)
+            if is_sjis(b2):
+                return True
+            else:
+                return False
+    return False
+        
+        
+        
+
 def is_possible_partial_sjis(b):
     if is_sjis(b):
         return True

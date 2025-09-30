@@ -32,11 +32,11 @@ class BinaryScriptProcessor:
         return self.bytes_to_formatted_hex(the_bytes)
         
     def bytes_to_formatted_hex(self, b):
-        return "<HEX>" + b.hex() + "</HEX>"
+        return "<HEX>" + b.hex() + "</HEX>\n"
 
     def read_addr(self, length=4):
         addr = self.f.read(length)
-        return "<ADDR>" + addr.hex() + "</ADDR>"
+        return "<ADDR>" + addr.hex() + "</ADDR>\n"
 
     def read_sjis(self, length):
         the_bytes = self.f.read(length)
@@ -44,13 +44,14 @@ class BinaryScriptProcessor:
     
     def bytes_to_sjis(self, b):
         the_bytes = b.decode("shift_jis", errors="hexreplace")
-        return "<SJIS>" + the_bytes + "</SJIS>"
+        return "<SJIS>" + the_bytes + "</SJIS>\n"
         
     def sjis_next_action_jikkou(self, next_action):
         do_nothing = 0
         move_backwards = 1
         move_forwards = 2
         b2 = bytes()
+        print(next_action)
         if next_action == do_nothing: 
             return None
         if next_action == move_backwards:
@@ -59,6 +60,8 @@ class BinaryScriptProcessor:
         if next_action == move_forwards:
             self.f.seek(-1, 1)
             b2 = self.f.read(2)
+            print(hex(int.from_bytes(b2)))
+            print("pos", self.f.tell(), "filesize", self.file_size)
             
         b2_first_byte = bytes([b2[0]])    
         if helpers.is_sjis(b2):
@@ -94,13 +97,13 @@ class BinaryScriptProcessor:
                 b2 = self.sjis_next_action_jikkou(next_action)
                 if not b2:
                     self.f.seek(-1, 1)
-                    the_bytes += self.f.read(1)
+                    the_bytes += b
                 else:
                     break
                 if self.f.tell() >= self.file_size:
                     break
-        sjis = self.bytes_to_sjis(the_bytes)
-        return sjis
+        result = self.bytes_to_formatted_hex(the_bytes)
+        return result
         
     # def read_opcode_until_sjis(self):
         # reading = True
@@ -125,6 +128,7 @@ class BinaryScriptProcessor:
         string = ""
         #we can read opcodes at end because the file always ends in opcodes
         while self.f.tell() <= self.file_size:
+            print(here)
             string += self.read_sjis_until_opcode()
             string += self.read_opcode_until_sjis()
             print(string)
@@ -179,7 +183,7 @@ class BinaryScriptProcessor:
             self.f.seek(self.f.tell() - 1)
             part1 = self.read_direct_hex(16)
             remaining_file = len(self.get_remaining_file())
-            part2 = self.read_sjis(remaining_file)
+            part2 = self.read_sjis_and_opcodes(remaining_file)
             string = part1 + part2
             #print(string)
             return string
@@ -190,6 +194,8 @@ class BinaryScriptProcessor:
             string = header + self.read_sjis_and_opcodes()
             #print(string)
             return string
+       
+            
 
         # opcodes not handled yet
         return None
