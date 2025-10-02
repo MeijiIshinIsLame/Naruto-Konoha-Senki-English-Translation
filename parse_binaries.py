@@ -43,95 +43,48 @@ class BinaryScriptProcessor:
         return self.bytes_to_sjis(the_bytes)
     
     def bytes_to_sjis(self, b):
-        the_bytes = b.decode("shift_jis", errors="hexreplace")
+        the_bytes = None
+        print(hex(int.from_bytes(b)))
+        try:
+            the_bytes = b.decode("shift_jis")
+        except:
+            the_bytes = f"<ERROR>{b}</ERROR>"
         return "<SJIS>" + the_bytes + "</SJIS>\n"
-        
-    def sjis_next_action_jikkou(self, next_action):
-        do_nothing = 0
-        move_backwards = 1
-        move_forwards = 2
-        b2 = bytes()
-        print(next_action)
-        if next_action == do_nothing: 
-            return None
-        if next_action == move_backwards:
-            self.f.seek(-2, 1)
-            b2 = self.f.read(2)
-        if next_action == move_forwards:
-            self.f.seek(-1, 1)
-            b2 = self.f.read(2)
-            print(hex(int.from_bytes(b2)))
-            print("pos", self.f.tell(), "filesize", self.file_size)
-            
-        b2_first_byte = bytes([b2[0]])    
-        if helpers.is_sjis(b2):
-            return b2
-        elif helpers.is_sjis(b2_first_byte):
-            self.f.seek(-1, 1)
-            b2 = self.f.read(1)
-            return b2
-        else:
-            return None
     
     def read_sjis_until_opcode(self):
-        the_bytes = bytes()
-        while True:
+        stop_codes = [0x0, 0x1, 0x2, 0xff, 0x8]
+        b = self.f.read(1)
+        sjis = bytes()
+        while int.from_bytes(b) not in stop_codes:
+            sjis += b
             b = self.f.read(1)
-            if helpers.is_possible_partial_sjis(b):
-                next_action = helpers.sjis_decoder_next_action(b)
-                b2 = self.sjis_next_action_jikkou(next_action)
-                if not b2:
-                    break
-                else:
-                    the_bytes += b2 
-                #print(b2)
-        sjis = self.bytes_to_sjis(the_bytes)
-        return sjis
+        return self.bytes_to_sjis(sjis)
         
     def read_opcode_until_sjis(self):
-        the_bytes = bytes()
-        while True:
+        b = self.f.read(1)
+        b2 = self.f.read(2)
+        if not b2:
+            return None
+        opcodes = bytes()
+        while not helpers.is_sjis(b2) or not b2:
+            opcodes += b
             b = self.f.read(1)
-            if helpers.is_possible_partial_sjis(b):
-                next_action = helpers.sjis_decoder_next_action(b)
-                b2 = self.sjis_next_action_jikkou(next_action)
-                if not b2:
-                    self.f.seek(-1, 1)
-                    the_bytes += b
-                else:
-                    break
-                if self.f.tell() >= self.file_size:
-                    break
-        result = self.bytes_to_formatted_hex(the_bytes)
-        return result
+            b2 = self.f.read(2)
+            if self.f.tell() == self.file_size:
+                break
+        return self.bytes_to_formatted_hex(opcodes)
         
-    # def read_opcode_until_sjis(self):
-        # reading = True
-        # length = 0
-        # original_position = self.f.tell()
-        # while reading:
-            # the_bytes = self.f.read(2)
-            # if not the_bytes:
-                # break
-            # if helpers.is_sjis(the_bytes):
-                # self.f.seek(self.f.tell() - len(the_bytes))
-                # break
-            # length += 1
-            # print("here")
-            # #print("f tell", self.f.tell(), "file size", self.file_size)
-        # self.f.seek(original_position-self.f.tell(), 1)
-        # opcode_bytes = self.read_direct_hex(length)
-        # return opcode_bytes
-            
                 
     def read_sjis_and_opcodes(self):
         string = ""
         #we can read opcodes at end because the file always ends in opcodes
         while self.f.tell() <= self.file_size:
-            print(here)
-            string += self.read_sjis_until_opcode()
-            string += self.read_opcode_until_sjis()
-            print(string)
+            try:
+                string += self.read_sjis_until_opcode()
+                string += self.read_opcode_until_sjis()
+                print(string)
+            except:
+                break
         return string
                 
         
@@ -150,14 +103,6 @@ class BinaryScriptProcessor:
 
     def read_dialog(self, length):
         pass
-
-    def search_bytes(self, pos, the_bytes):
-        previous_pos = self.f.tell()
-        self.f.seek(pos)
-        data = self.f.read(len(the_bytes))
-        result = data == the_bytes
-        self.f.seek(previous_pos)
-        return result
 
     def process_opcode(self, opcode):
         if opcode == 0x01:
@@ -183,7 +128,7 @@ class BinaryScriptProcessor:
             self.f.seek(self.f.tell() - 1)
             part1 = self.read_direct_hex(16)
             remaining_file = len(self.get_remaining_file())
-            part2 = self.read_sjis_and_opcodes(remaining_file)
+            part2 = self.read_sjis_and_opcodes()
             string = part1 + part2
             #print(string)
             return string
@@ -203,17 +148,18 @@ class BinaryScriptProcessor:
     def process_file(self, file_path=None):
         folder = Path(file_path) if file_path else self.INPUT_FOLDER
         files = [f for f in folder.iterdir() if f.is_file()]
-        for file in tqdm(files, desc="Processing files"):
+        for file in files:
             result = ""
             #print(file)
             with open(file, "rb") as file_handle:
                 self.f = file_handle  # bind file handle to self
                 self.file_size = os.path.getsize(file)  # bind filesize to self
-                while self.f.tell() < self.file_size:
+                while self.f.tell() <= self.file_size:
                     opcode = int.from_bytes(self.f.read(1))
                     opcode_result_bytes = self.process_opcode(opcode)
                     if opcode_result_bytes:
                         result += opcode_result_bytes
+                    else: break
             out_file = OUTPUT_FOLDER / file.name
             with open(out_file, "w", encoding="shift_jis") as output_file_handle:
                 output_file_handle.write(result)
