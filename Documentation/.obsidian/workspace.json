@@ -34,9 +34,21 @@
               "icon": "lucide-file",
               "title": "HOW TO REINSERT TEXT"
             }
+          },
+          {
+            "id": "128f1909c4a12cfe",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.9.14"
+              },
+              "icon": "lucide-book-up",
+              "title": "Release Notes 1.9.14"
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -184,7 +196,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "c44ebc08555f0091",
+  "active": "128f1909c4a12cfe",
   "lastOpenFiles": [
     "fake and gay addresses.md",
     "HOW TO REINSERT TEXT.md",

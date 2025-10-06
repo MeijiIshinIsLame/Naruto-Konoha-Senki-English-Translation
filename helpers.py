@@ -90,3 +90,9 @@ def is_opcode(the_bytes):
     except UnicodeDecodeError:
         result = True
     return result
+
+def is_little_endian_address(b):
+    b = int.from_bytes(b, byteorder='little')
+    if 0x08000000 <= b <= 0x087FFFF0:
+        return True
+    return False

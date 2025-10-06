@@ -6,7 +6,7 @@ start_address = 0x9CD54
 
 def load_sjis_table(filename=Path("font/sjis-utf8.tbl")):
     sjis_values = []
-    with open(filename, "r") as f:
+    with open(filename, "r", encoding="utf-8") as f:
         for line in f:
             pair = tuple(line.split("=", 1))
             sjis_values.append(pair)
@@ -43,7 +43,7 @@ def draw_image(filepath, byte_data):
             pixels[x, y] = color  
             i += 1
     img_big = img.resize((width * 8, height * 8), Image.NEAREST)
-    img_big.save(filepath)
+    img.save(filepath)
     
 
 def extract_chars_from_rom(filename=Path("game/neruto.gba")):
@@ -71,5 +71,3 @@ def extract_chars_from_rom(filename=Path("game/neruto.gba")):
             
             
 extract_chars_from_rom()
-        
-        
